@@ -214,7 +214,7 @@ class SyncChangeRepoVersionTestCase(unittest.TestCase):
         1. Create a repository, and a remote.
         2. Sync the repository an arbitrary number of times.
         3. Verify that the repository version is equal to the previous number
-        of syncs.
+           of syncs.
         """
         cfg = config.get_config()
         client = api.Client(cfg, api.json_handler)
@@ -375,7 +375,7 @@ class ContentImmutableRepoVersionTestCase(unittest.TestCase):
 
 class FilterRepoVersionTestCase(unittest.TestCase):
     """Test whether repository versions can be filtered.
-
+# 
     These tests target the following issues:
 
     * `Pulp #3238 <https://pulp.plan.io/issues/3238>`_
@@ -571,8 +571,11 @@ class CreateRepoBaseVersionTestCase(unittest.TestCase):
         """
         # create repo version 1
         repo = self.create_sync_repo()
-        version_content = []
-        version_content.append(get_content(repo))
+        version_1_content = get_content(repo)
+        version_1_content = [
+            remove_created_key(item)
+            for item in get_content(repo)
+            ]
         self.assertIsNone(get_versions(repo)[0]['base_version'])
 
         content = self.content.pop()
@@ -596,12 +599,11 @@ class CreateRepoBaseVersionTestCase(unittest.TestCase):
         self.assertEqual(get_versions(repo)[2]['base_version'], base_version)
 
         # assert that content on version 1 is equal to content on version 3
-        version_content.append(get_content(repo))
-        self.assertEqual(
-            version_content[0],
-            version_content[1],
-            version_content
-        )
+        version_3_content = [
+            remove_created_key(item)
+            for item in get_content(repo)   
+            ]
+        self.assertEqual(version_1_content, version_3_content)
 
     def test_different_repository(self):
         """Test ``base_version`` for different repositories.
@@ -616,8 +618,7 @@ class CreateRepoBaseVersionTestCase(unittest.TestCase):
         """
         # create repo A
         repo = self.create_sync_repo()
-        version_content = []
-        version_content.append(get_content(repo))
+        version_1_content = get_content(repo)[0]
         self.assertIsNone(get_versions(repo)[0]['base_version'])
 
         # get repo A version 1 to be used as base_version
@@ -639,12 +640,15 @@ class CreateRepoBaseVersionTestCase(unittest.TestCase):
 
         # assert that content on version 1 of repo A is equal to content on
         # version 1 repo B
-        version_content.append(get_content(repo))
-        self.assertEqual(
-            version_content[0],
-            version_content[1],
-            version_content
-        )
+        version_2_content = get_content(repo)
+        # for key, value in version.items():
+        #     if key != 'created':
+        #         with self.subTest(key):
+        #             self.assertEqual(
+        #                 version_2_content[key],
+        #                 value,
+        #                 version_2_content
+        #             )
 
     def test_base_version_other_parameters(self):
         """Test ``base_version`` can be used together with other parameters.
@@ -710,3 +714,7 @@ class CreateRepoBaseVersionTestCase(unittest.TestCase):
         self.addCleanup(self.client.delete, remote['_href'])
         sync(self.cfg, remote, repo)
         return self.client.get(repo['_href'])
+
+def remove_created_key(dict):
+    """Given a dict remove the key `created`."""
+    return {k:v for k,v in dict.items() if k != 'created'}
