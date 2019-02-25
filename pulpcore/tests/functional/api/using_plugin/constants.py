@@ -65,3 +65,8 @@ FILE_URL = urljoin(FILE_FIXTURE_URL, '1.iso')
 
 FILE2_URL = urljoin(FILE2_FIXTURE_URL, '1.iso')
 """The URL to an ISO file at :data:`FILE2_FIXTURE_URL`."""
+
+RPM_REMOTE_PATH = urljoin(BASE_REMOTE_PATH, 'rpm/rpm/')
+
+RPM_UNSIGNED_FIXTURE_URL = urljoin(PULP_FIXTURES_BASE_URL, 'rpm-unsigned/')
+"""The URL to a repository with unsigned RPM packages."""

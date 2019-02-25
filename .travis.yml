@@ -14,6 +14,7 @@ matrix:
 addons:
   apt:
     packages:
+      - curl
       - httpie
       - jq
   # postgres versions provided by el7 RHSCL (lowest supportable version)

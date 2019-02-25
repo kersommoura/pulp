@@ -54,6 +54,9 @@ gunicorn pulpcore.tests.functional.content_with_coverage:server --bind 'localhos
 coverage run $(which pulp-manager) runserver --noreload >> ~/django_runserver.log 2>&1 &
 wait_for_pulp 20
 
+# Show installed plugins versions
+curl -u admin:admin "${HOST}":80/pulp/api/v3/status/
+
 # Run functional tests
 pytest -v -r sx --color=yes --pyargs pulpcore.tests.functional || show_logs_and_return_non_zero
 pytest -v -r sx --color=yes --pyargs pulp_file.tests.functional || show_logs_and_return_non_zero
